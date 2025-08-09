@@ -76,7 +76,14 @@
   channel.bind('App\\Events\\OrderCreated', function(data) {
     console.log(data.order[0]);
     playNotify(); // << แทนการเรียก .play() ตรงๆ
-    Swal.fire({ icon: 'info', title: data.order[0] });
+    Swal.fire({
+      icon: 'info',
+      title: data.order[0],
+      timer: 1000,
+      showConfirmButton: false
+    });
+    checkNewOrders();
+
   });
 </script>
 
