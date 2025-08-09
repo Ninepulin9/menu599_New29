@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th" class="light-style layout-menu-fixed" dir="ltr"data-theme="theme-default" data-assets-path="{{ asset('assets/') }}" data-template="vertical-menu-template-free">
+<html lang="th" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="{{asset('assets/')}} data-template=" vertical-menu-template-free">
 
 <head>
     <meta charset="utf-8" />
@@ -29,64 +29,24 @@
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 
     <script>
-  const PUSHER_APP_KEY = "{{ env('PUSHER_APP_KEY') }}";
-  const PUSHER_APP_CLUSTER = "{{ env('PUSHER_APP_CLUSTER') }}";
-
-  Pusher.logToConsole = true;
-  var pusher = new Pusher(PUSHER_APP_KEY, { cluster: PUSHER_APP_CLUSTER, encrypted: true });
-  var channel = pusher.subscribe('orders');
-
-  function playNotify() {
-    const el = document.getElementById('notifySound');
-    if (!el) return;
-
-    try {
-      el.currentTime = 0;
-      const p = el.play();
-      if (p && typeof p.then === 'function') {
-        p.catch((err) => {
-          console.warn('Autoplay blocked:', err);
-          const once = () => {
-            el.currentTime = 0;
-            el.play().catch(() => {});
-          };
-          window.addEventListener('click', once, { once: true, passive: true });
-          window.addEventListener('touchstart', once, { once: true, passive: true });
+        const PUSHER_APP_KEY = "{{ env('PUSHER_APP_KEY') }}";
+        const PUSHER_APP_CLUSTER = "{{ env('PUSHER_APP_CLUSTER') }}";
+        
+        Pusher.logToConsole = true;
+        var pusher = new Pusher(PUSHER_APP_KEY, {
+            cluster: PUSHER_APP_CLUSTER,
+            encrypted: true
         });
-      }
-    } catch (e) {
-      console.error('play() error:', e);
-    }
-  }
-
-  // ปลดล็อกเสียงครั้งแรกเมื่อมี gesture (กัน NotAllowedError บน iOS/Chrome)
-  function unlockAudioOnce() {
-    const el = document.getElementById('notifySound');
-    if (!el) return;
-    const handler = () => {
-      try { el.play().then(() => { el.pause(); el.currentTime = 0; }).catch(()=>{}); } catch(_){}
-      window.removeEventListener('click', handler);
-      window.removeEventListener('touchstart', handler);
-    };
-    window.addEventListener('click', handler, { once: true, passive: true });
-    window.addEventListener('touchstart', handler, { once: true, passive: true });
-  }
-  document.addEventListener('DOMContentLoaded', unlockAudioOnce);
-
-  channel.bind('App\\Events\\OrderCreated', function(data) {
-    console.log(data.order[0]);
-    playNotify(); // << แทนการเรียก .play() ตรงๆ
-    Swal.fire({
-      icon: 'info',
-      title: data.order[0],
-      timer: 1000,
-      showConfirmButton: false
-    });
-    checkNewOrders();
-
-  });
-</script>
-
+        var channel = pusher.subscribe('orders');
+        channel.bind('App\\Events\\OrderCreated', function(data) {
+            console.log(data.order[0]);
+            document.getElementById('notifySound').play();
+            Swal.fire({
+                icon: 'info',
+                title: data.order[0],
+            })
+        });
+    </script>
     <style>
         body {
             font-family: "Noto Sans Thai", sans-serif;
@@ -97,7 +57,7 @@
 </head>
 
 <body>
-    <audio id="notifySound" src="{{asset('sound/test.mp3')}}" preload="auto" playsinline></audio>
+    <audio id="notifySound" src="{{asset('sound/test.mp3')}}" preload="auto"></audio>
     @if ($message = Session::get('success'))
     <script>
         Swal.fire({
@@ -171,7 +131,7 @@
             }
         });
     </script>
-    @yield('script')
 </body>
 
 </html>
+@yield('script')
