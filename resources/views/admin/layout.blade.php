@@ -42,11 +42,21 @@
 
     try {
       el.currentTime = 0;
-      const playPromise = el.play();
-      if (playPromise && typeof playPromise.then === 'function') {
-        playPromise.catch(() => { /* ignore autoplay errors */ });
+      const p = el.play();
+      if (p && typeof p.then === 'function') {
+        p.catch((err) => {
+          console.warn('Autoplay blocked:', err);
+          const once = () => {
+            el.currentTime = 0;
+            el.play().catch(() => {});
+          };
+          window.addEventListener('click', once, { once: true, passive: true });
+          window.addEventListener('touchstart', once, { once: true, passive: true });
+        });
       }
-    } catch (_) {
+    } catch (e) {
+      console.error('play() error:', e);
+      throw e;
     }
   }
 
