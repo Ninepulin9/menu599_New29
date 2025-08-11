@@ -419,7 +419,7 @@
 
         $(document).ready(function () {
             // DataTable สำหรับรายการออเดอร์
-            var table1 = $("#myTable").DataTable({
+            $("#myTable").DataTable({
                 language: {
                     url: language,
                 },
@@ -473,19 +473,6 @@
                 },
                 ]
             });
-            var highlight = new URLSearchParams(window.location.search).get('highlight');
-            if (highlight) {
-                table1.on('draw', function () {
-                    table1.rows().every(function () {
-                        var row = this.node();
-                        var text = $(row).find('td:eq(1)').text().trim();
-                        if (text === highlight) {
-                            $(row).addClass('highlight-row');
-                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    });
-                });
-            }
 
             // DataTable สำหรับรายการชำระเงินแล้ว
             $("#myTable2").DataTable({

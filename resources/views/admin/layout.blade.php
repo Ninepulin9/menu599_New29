@@ -44,7 +44,8 @@
       el.currentTime = 0;
       const p = el.play();
       if (p && typeof p.then === 'function') {
-        p.catch(() => {
+        p.catch((err) => {
+          console.warn('Autoplay blocked:', err);
           const once = () => {
             el.currentTime = 0;
             el.play().catch(() => {});
@@ -54,7 +55,7 @@
         });
       }
     } catch (e) {
-      
+      console.error('play() error:', e);
     }
   }
 
@@ -72,51 +73,10 @@
   }
   document.addEventListener('DOMContentLoaded', unlockAudioOnce);
 
-  function showOrderNotification(order) {
-    if (!order) return;
-    const container = document.getElementById('orderNotifications');
-    if (!container) return;
-    const box = document.createElement('div');
-    box.className = 'order-alert';
-    const title = order.table_number ? `โต๊ะ ${order.table_number}` : 'ออเดอร์ออนไลน์';
-    const items = (order.items || []).join(', ');
-    box.innerHTML = `<strong>${title}</strong><br>${items}<br><small>${order.created_at}</small><span class="close">&times;</span>`;
-    box.querySelector('.close').addEventListener('click', (e) => {
-      e.stopPropagation();
-      box.remove();
-    });
-    box.addEventListener('click', () => {
-      const url = order.is_online ? `/admin/order_rider?highlight=${order.id}` : `/admin/order?highlight=${order.table_number}`;
-      window.location.href = url;
-    });
-    container.appendChild(box);
-  }
-
   channel.bind('App\\Events\\OrderCreated', function(data) {
     console.log(data.order[0]);
-    try {
-       playNotify();
-      Swal.fire({
-        icon: 'info',
-        title: data.order[0],
-        timer: 1000,
-        showConfirmButton: false
-      });
-    } catch (e) {
-      console.error('notify sound error:', e);
-       Swal.fire({
-        icon: 'info',
-        title: data.order[0],
-        timer: 1000,
-        showConfirmButton: false
-      });
-    }
-
-    
-
-    if (typeof checkNewOrders === 'function') {
-      checkNewOrders();
-    }
+    playNotify(); // << แทนการเรียก .play() ตรงๆ
+    Swal.fire({ icon: 'info', title: data.order[0] });
   });
 </script>
 
@@ -125,43 +85,12 @@
             font-family: "Noto Sans Thai", sans-serif;
             font-optical-sizing: auto;
         }
-        #orderNotifications {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 2000;
-        }
-
-        .order-alert {
-            position: relative;
-            background: #fff;
-            border-left: 4px solid #0d6efd;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            padding: 0.5rem 1.5rem 0.5rem 0.75rem;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            min-width: 260px;
-        }
-
-        .order-alert .close {
-            position: absolute;
-            top: 4px;
-            right: 6px;
-            font-size: 1.2rem;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .highlight-row {
-            background: #fff3cd !important;
-        }
     </style>
     @yield('style')
 </head>
 
 <body>
     <audio id="notifySound" src="{{asset('sound/test.mp3')}}" preload="auto" playsinline></audio>
-    <div id="orderNotifications"></div>
     @if ($message = Session::get('success'))
     <script>
         Swal.fire({
@@ -216,25 +145,20 @@
                 .then(response => response.json())
                 .then(res => {
                     if (res.status) {
-                        if (res.order) {
-                            showOrderNotification(res.order);
-                        }
-                        if (res.table_id) {
-                            window.open('/admin/order/printOrderAdminCook/' + res.table_id, '_blank');
-                        }
+                        window.open('/admin/order/printOrderAdminCook/' + res.table_id, '_blank');
                     }
                 })
                 .catch(err => console.error(err));
         }
 
-        setInterval(checkNewOrders, 1000);
+        setInterval(checkNewOrders, 5000);
 
         window.addEventListener('message', function(e) {
             if (e.data === 'cook-print-done') {
                 Swal.fire({
                     icon: 'success',
                     title: 'ปริ้น Order ในครัวแบบออโต้เรียบร้อยแล้ว',
-                    timer: 1000,
+                    timer: 2000,
                     showConfirmButton: false
                 });
             }
