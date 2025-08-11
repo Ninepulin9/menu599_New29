@@ -44,8 +44,7 @@
       el.currentTime = 0;
       const p = el.play();
       if (p && typeof p.then === 'function') {
-        p.catch((err) => {
-          console.warn('Autoplay blocked:', err);
+        p.catch(() => {
           const once = () => {
             el.currentTime = 0;
             el.play().catch(() => {});
@@ -55,8 +54,9 @@
         });
       }
     } catch (e) {
-      console.error('play() error:', e);
-      throw e;
+      // console.error('play() error:', e);
+      // throw e;
+      // Ignore play() errors to avoid interrupting order handling
     }
   }
 
