@@ -262,7 +262,8 @@ class Admin extends Controller
     }
     public function checkNewOrders()
     {
-        $order = Orders::where('is_print_cook', 0)
+        $order = Orders::with(['details.menu', 'table'])
+            ->where('is_print_cook', 0)
             ->whereIn('status', [1, 2])
             ->orderBy('created_at')
             ->first();
@@ -271,10 +272,22 @@ class Admin extends Controller
             Orders::where('table_id', $order->table_id)
                 ->where('is_print_cook', 0)
                 ->update(['is_print_cook' => 1]);
+            $items = $order->details->map(function ($d) {
+                $name = $d->menu->name ?? '';
+                return trim($name . ' x' . $d->quantity);
+            })->toArray();
 
             return response()->json([
                 'status' => true,
                 'table_id' => $order->table_id,
+                'order' => [
+                    'id' => $order->id,
+                    'table_id' => $order->table_id,
+                    'table_number' => $order->table->table_number ?? null,
+                    'items' => $items,
+                    'created_at' => $order->created_at->format('H:i'),
+                    'is_online' => $order->table_id ? false : true,
+                ],
             ]);
         }
 
@@ -1050,6 +1063,7 @@ foreach ($orderList as $order) {
                 $flag_order = '<button class="btn btn-sm btn-warning">สั่งออนไลน์</button>';
                 $action = '<button data-id="' . $rs->id . '" type="button" class="btn btn-sm btn-outline-primary modalShow m-1">รายละเอียด</button>' . $pay;
                 $info[] = [
+                    'id' => $rs->id,
                     'flag_order' => $flag_order,
                     'name' => $rs->name,
                     'total' => $rs->total,
