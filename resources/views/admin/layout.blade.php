@@ -226,7 +226,12 @@
                             showOrderNotification(res.order);
                         }
                         if (res.table_id) {
-                            window.open('/admin/order/printOrderAdminCook/' + res.table_id, '_blank');
+                            const channelMeta = document.querySelector('meta[name="app-channel"]');
+                            const deviceMeta = document.querySelector('meta[name="app-device"]');
+                            const channel = channelMeta ? channelMeta.content : '';
+                            const device = deviceMeta ? deviceMeta.content : '';
+                            const printUrl = `/admin/order/printOrderAdminCook/${res.table_id}?channel=${channel}&device=${device}`;
+                            window.location.href = printUrl;
                         }
                     }
                 })
