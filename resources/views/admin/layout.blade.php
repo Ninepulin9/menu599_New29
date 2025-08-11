@@ -56,6 +56,7 @@
       }
     } catch (e) {
       console.error('play() error:', e);
+      throw e;
     }
   }
 
@@ -75,8 +76,29 @@
 
   channel.bind('App\\Events\\OrderCreated', function(data) {
     console.log(data.order[0]);
-    playNotify(); // << แทนการเรียก .play() ตรงๆ
-    Swal.fire({ icon: 'info', title: data.order[0] });
+    try {
+       playNotify();
+      Swal.fire({
+        icon: 'info',
+        title: data.order[0],
+        timer: 1000,
+        showConfirmButton: false
+      });
+    } catch (e) {
+      console.error('notify sound error:', e);
+       Swal.fire({
+        icon: 'info',
+        title: data.order[0],
+        timer: 1000,
+        showConfirmButton: false
+      });
+    }
+
+    
+
+    if (typeof checkNewOrders === 'function') {
+      checkNewOrders();
+    }
   });
 </script>
 
@@ -151,14 +173,14 @@
                 .catch(err => console.error(err));
         }
 
-        setInterval(checkNewOrders, 5000);
+        setInterval(checkNewOrders, 1000);
 
         window.addEventListener('message', function(e) {
             if (e.data === 'cook-print-done') {
                 Swal.fire({
                     icon: 'success',
                     title: 'ปริ้น Order ในครัวแบบออโต้เรียบร้อยแล้ว',
-                    timer: 2000,
+                    timer: 1000,
                     showConfirmButton: false
                 });
             }
