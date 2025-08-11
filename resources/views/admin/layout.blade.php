@@ -103,25 +103,24 @@
     if (typeof checkNewOrders === 'function') {
       checkNewOrders();
     }
-    // แสดง Popup พร้อมเสียงหลังจากหน่วงเวลา 1 วินาที
+    
+    // แสดง Popup หลังการพิมพ์ (Android ไม่มีเสียงแจ้งเตือน)
     setTimeout(() => {
-      try {
-        playNotify();
-        Swal.fire({
-          icon: 'info',
-          title: data.order[0],
-          timer: 1000,
-          showConfirmButton: false
-        });
-      } catch (e) {
-        console.error('notify sound error:', e);
-        Swal.fire({
-          icon: 'info',
-          title: data.order[0],
-          timer: 1000,
-          showConfirmButton: false
-        });
+      const meta = document.querySelector('meta[name="app-device"]');
+      const isAndroid = meta && meta.getAttribute('content').toLowerCase() === 'android';
+      if (!isAndroid) {
+        try {
+          playNotify();
+        } catch (e) {
+          console.error('notify sound error:', e);
+        }
       }
+      Swal.fire({
+        icon: 'info',
+        title: data.order[0],
+        timer: 1000,
+        showConfirmButton: false
+      });
     }, 1000);
   });
 </script>
