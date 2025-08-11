@@ -231,6 +231,11 @@
                             const channel = channelMeta ? channelMeta.content : '';
                             const device = deviceMeta ? deviceMeta.content : '';
                             const printUrl = `/admin/order/printOrderAdminCook/${res.table_id}?channel=${channel}&device=${device}`;
+                            try {
+                                sessionStorage.setItem('admin-prev-url', window.location.href);
+                            } catch (e) {
+                                console.warn('sessionStorage unavailable', e);
+                            }
                             window.location.href = printUrl;
                         }
                     }

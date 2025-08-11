@@ -377,6 +377,23 @@
                                 if (window.opener) {
                                     window.opener.postMessage('cook-print-done', '*');
                                     window.close();
+                                }else {
+                                    const prev = (() => {
+                                        try {
+                                            const url = sessionStorage.getItem('admin-prev-url');
+                                            sessionStorage.removeItem('admin-prev-url');
+                                            return url;
+                                        } catch (e) {
+                                            return null;
+                                        }
+                                    })();
+                                    if (prev) {
+                                        window.location.href = prev;
+                                    } else if (document.referrer) {
+                                        window.location.href = document.referrer;
+                                    } else {
+                                        history.back();
+                                    }
                                 }
                             }, 800);
                         });
