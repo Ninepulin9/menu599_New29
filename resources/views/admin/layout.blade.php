@@ -96,29 +96,33 @@
 
   channel.bind('App\\Events\\OrderCreated', function(data) {
     console.log(data.order[0]);
-    try {
-       playNotify();
-      Swal.fire({
-        icon: 'info',
-        title: data.order[0],
-        timer: 1000,
-        showConfirmButton: false
-      });
-    } catch (e) {
-      console.error('notify sound error:', e);
-       Swal.fire({
-        icon: 'info',
-        title: data.order[0],
-        timer: 1000,
-        showConfirmButton: false
-      });
-    }
-
     
 
+    
+    // เรียกการเช็คออเดอร์ใหม่ก่อน เพื่อให้ระบบออโต้ปริ้นทำงานทันที
     if (typeof checkNewOrders === 'function') {
       checkNewOrders();
     }
+    // แสดง Popup พร้อมเสียงหลังจากหน่วงเวลา 1 วินาที
+    setTimeout(() => {
+      try {
+        playNotify();
+        Swal.fire({
+          icon: 'info',
+          title: data.order[0],
+          timer: 1000,
+          showConfirmButton: false
+        });
+      } catch (e) {
+        console.error('notify sound error:', e);
+        Swal.fire({
+          icon: 'info',
+          title: data.order[0],
+          timer: 1000,
+          showConfirmButton: false
+        });
+      }
+    }, 1000);
   });
 </script>
 
