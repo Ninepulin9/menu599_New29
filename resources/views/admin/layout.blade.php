@@ -44,7 +44,8 @@
       el.currentTime = 0;
       const p = el.play();
       if (p && typeof p.then === 'function') {
-        p.catch(() => {
+        p.catch((err) => {
+          console.warn('Autoplay blocked:', err);
           const once = () => {
             el.currentTime = 0;
             el.play().catch(() => {});
@@ -54,9 +55,8 @@
         });
       }
     } catch (e) {
-      // console.error('play() error:', e);
-      // throw e;
-      // Ignore play() errors to avoid interrupting order handling
+      console.error('play() error:', e);
+      throw e;
     }
   }
 
@@ -217,17 +217,15 @@
     <script src="{{asset('assets/js/dashboards-analytics.js')}}"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script>
-        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
         function checkNewOrders() {
             fetch("{{ route('checkNewOrders') }}")
                 .then(response => response.json())
-                .then(async res => {
+                .then(res => {
                     if (res.status) {
                         if (res.order) {
                             showOrderNotification(res.order);
                         }
                         if (res.table_id) {
-                            await sleep(1000);
                             window.open('/admin/order/printOrderAdminCook/' + res.table_id, '_blank');
                         }
                     }
