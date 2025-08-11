@@ -44,7 +44,8 @@
       el.currentTime = 0;
       const p = el.play();
       if (p && typeof p.then === 'function') {
-        p.catch(() => {
+        p.catch((err) => {
+          console.warn('Autoplay blocked:', err);
           const once = () => {
             el.currentTime = 0;
             el.play().catch(() => {});
@@ -54,9 +55,8 @@
         });
       }
     } catch (e) {
-      // console.error('play() error:', e);
-      // throw e;
-      // Ignore play() errors to avoid interrupting order handling
+      console.error('play() error:', e);
+      throw e;
     }
   }
 
@@ -103,25 +103,24 @@
     if (typeof checkNewOrders === 'function') {
       checkNewOrders();
     }
-    // แสดง Popup พร้อมเสียงหลังจากหน่วงเวลา 1 วินาที
+    
+    // แสดง Popup หลังการพิมพ์ (Android ไม่มีเสียงแจ้งเตือน)
     setTimeout(() => {
-      try {
-        playNotify();
-        Swal.fire({
-          icon: 'info',
-          title: data.order[0],
-          timer: 1000,
-          showConfirmButton: false
-        });
-      } catch (e) {
-        console.error('notify sound error:', e);
-        Swal.fire({
-          icon: 'info',
-          title: data.order[0],
-          timer: 1000,
-          showConfirmButton: false
-        });
+      const meta = document.querySelector('meta[name="app-device"]');
+      const isAndroid = meta && meta.getAttribute('content').toLowerCase() === 'android';
+      if (!isAndroid) {
+        try {
+          playNotify();
+        } catch (e) {
+          console.error('notify sound error:', e);
+        }
       }
+      Swal.fire({
+        icon: 'info',
+        title: data.order[0],
+        timer: 1000,
+        showConfirmButton: false
+      });
     }, 1000);
   });
 </script>
@@ -217,18 +216,26 @@
     <script src="{{asset('assets/js/dashboards-analytics.js')}}"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script>
-        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
         function checkNewOrders() {
             fetch("{{ route('checkNewOrders') }}")
                 .then(response => response.json())
-                .then(async res => {
+                .then(res => {
                     if (res.status) {
                         if (res.order) {
                             showOrderNotification(res.order);
                         }
                         if (res.table_id) {
-                            await sleep(1000);
-                            window.open('/admin/order/printOrderAdminCook/' + res.table_id, '_blank');
+                            const channelMeta = document.querySelector('meta[name="app-channel"]');
+                            const deviceMeta = document.querySelector('meta[name="app-device"]');
+                            const channel = channelMeta ? channelMeta.content : '';
+                            const device = deviceMeta ? deviceMeta.content : '';
+                            const printUrl = `/admin/order/printOrderAdminCook/${res.table_id}?channel=${channel}&device=${device}`;
+                            try {
+                                sessionStorage.setItem('admin-prev-url', window.location.href);
+                            } catch (e) {
+                                console.warn('sessionStorage unavailable', e);
+                            }
+                            window.location.href = printUrl;
                         }
                     }
                 })
