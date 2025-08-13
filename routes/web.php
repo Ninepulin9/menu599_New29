@@ -52,7 +52,7 @@ Route::post('/confirmPay', [Main::class, 'confirmPay'])->name('confirmPay');
 Route::post('/admin/order/paymentConfirm', [Admin::class, 'paymentConfirm'])->name('paymentConfirm');
 
 //สั่ง delivery
-Route::get('/delivery', [Delivery::class, 'index'])->name('index');
+Route::get('/delivery', [Delivery::class, 'index'])->name('delivery.index');
 Route::get('/delivery/login', [Delivery::class, 'login'])->name('delivery.login');
 Route::get('/delivery/register', [Delivery::class, 'register'])->name('delivery.register');
 Route::post('/delivery/UsersRegister', [Delivery::class, 'UsersRegister'])->name('delivery.UsersRegister');

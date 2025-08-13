@@ -51,16 +51,17 @@ $config = Config::first();
         border-radius: 0.5rem;
     }
 
-    .food-label {
-        font-size: 18px;
-        color: <?= ($config->color_category != '')  ? $config->color_category :  '#ffffff' ?>;
-        font-weight: bold;
-        text-align: center;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        width: 100%;
-        line-height: 0.9;
-    }
+   .food-label {
+    font-size: 18px;
+    color: #000000;
+    font-weight: bold;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    line-height: 0.9;
+}
+
 
     .category-status {
         position: absolute;
@@ -163,12 +164,12 @@ $config = Config::first();
 <div class="container mt-1">
     <div class="d-flex flex-column justify-content-center">
         <!-- แสดงเวลาปัจจุบัน -->
-        <div class="current-time">
+        <!-- <div class="current-time">
             <p class="current-time-text">
                 <i class="fas fa-clock me-1"></i>
                 เวลาปัจจุบัน: <span id="current-time"></span>
             </p>
-        </div>
+        </div> -->
 
         <div class="title-food" style="color: black;">
     หมวดอาหาร
@@ -257,30 +258,30 @@ $config = Config::first();
         </div>
 
         <!-- สถิติสรุป -->
-        @if(count($category) > 0)
-        <div class="mt-3 p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 8px; backdrop-filter: blur(10px);">
-            <div class="row text-center">
-                <div class="col-4">
-                    <div class="fw-bold" style="color: <?= ($config->color_font != '')  ? $config->color_font :  '#ffffff' ?>;">
-                        {{ count($category) }}
-                    </div>
-                    <small style="color: <?= ($config->color_font != '')  ? $config->color_font :  '#ffffff' ?>;">หมวดพร้อมขาย</small>
-                </div>
-                <div class="col-4">
-                    <div class="fw-bold" style="color: <?= ($config->color_font != '')  ? $config->color_font :  '#ffffff' ?>;">
-                        {{ \App\Models\Menu::availableNow()->count() }}
-                    </div>
-                    <small style="color: <?= ($config->color_font != '')  ? $config->color_font :  '#ffffff' ?>;">เมนูพร้อมขาย</small>
-                </div>
-                <div class="col-4">
-                    <div class="fw-bold" style="color: <?= ($config->color_font != '')  ? $config->color_font :  '#ffffff' ?>;">
-                        {{ \App\Models\Menu::count() }}
-                    </div>
-                    <small style="color: <?= ($config->color_font != '')  ? $config->color_font :  '#ffffff' ?>;">เมนูทั้งหมด</small>
-                </div>
+    @if(count($category) > 0)
+<div class="mt-3 p-3" style="background: rgba(255, 255, 255, 0.3); border-radius: 8px; backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2);">
+    <div class="row text-center">
+        <div class="col-4">
+            <div class="fw-bold" style="color: #000000 !important;">
+                {{ count($category) }}
             </div>
+            <small style="color: #333333 !important;">หมวดพร้อมขาย</small>
         </div>
-        @endif
+        <div class="col-4">
+            <div class="fw-bold" style="color: #000000 !important;">
+                {{ \App\Models\Menu::availableNow()->count() }}
+            </div>
+            <small style="color: #333333 !important;">เมนูพร้อมขาย</small>
+        </div>
+        <div class="col-4">
+            <div class="fw-bold" style="color: #000000 !important;">
+                {{ \App\Models\Menu::count() }}
+            </div>
+            <small style="color: #333333 !important;">เมนูทั้งหมด</small>
+        </div>
+    </div>
+</div>
+@endif
     </div>
 </div>
 
