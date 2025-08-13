@@ -10,50 +10,49 @@
     
     $config = Config::first();
     
-    // ดึงข้อมูลหมวดหมู่ปัจจุบันและหมวดหมู่ทั้งหมด
     $currentCategory = Categories::find($category_id ?? request()->route('id'));
     $allCategories = Categories::get();
 
     ?>
     <style>
-       /* Header Styles - ปรับให้เล็กลง */
+
 .header-section {
     background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
-    padding: 15px 15px 20px 15px;  /* ลดจาก 20px เป็น 15px */
-    border-radius: 0 0 25px 25px;   /* ลดจาก 30px */
-    box-shadow: 0 3px 12px rgba(0,0,0,0.1);  /* ลดเงา */
+    padding: 15px 15px 20px 15px;
+    border-radius: 0 0 25px 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
     position: sticky;
     top: 0;
     z-index: 100;
-    margin: -15px -15px 15px -15px;  /* ลด margin */
+    margin: -15px -15px 15px -15px;
 }
 
 .page-title {
     color: white;
-    font-size: 24px;  /* ลดจาก 28px */
+    font-size: 24px;
     font-weight: 600;
-    margin-bottom: 12px;  /* ลดจาก 15px */
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
-    gap: 8px;  /* ลดจาก 10px */
+    gap: 8px;
 }
 
 .page-title i {
-    font-size: 20px;  /* ลดจาก 24px */
+    font-size: 20px;
 }
 
 /* Search Section */
 .search-wrapper {
     position: relative;
-    margin-bottom: 12px;  /* ลดจาก 15px */
+    margin-bottom: 12px;
 }
 
 .search-input {
     width: 100%;
-    padding: 10px 45px 10px 18px;  /* ลดจาก 12px และ 20px */
+    padding: 10px 45px 10px 18px;
     border: none;
-    border-radius: 22px;  /* ลดจาก 25px */
-    font-size: 14px;  /* ลดจาก 15px */
+    border-radius: 22px;
+    font-size: 14px;
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
@@ -67,7 +66,7 @@
 
 .search-input::placeholder {
     color: #6c757d;
-    font-size: 14px;  /* เพิ่มเพื่อควบคุมขนาด placeholder */
+    font-size: 14px;
 }
 
 .search-icon {
@@ -77,7 +76,7 @@
     transform: translateY(-50%);
     color: #6c757d;
     pointer-events: none;
-    font-size: 14px;  /* ควบคุมขนาด icon */
+    font-size: 14px;
 }
 
 .clear-search {
@@ -93,23 +92,31 @@
     display: none;
 }
 
+.clear-search.show {
+    display: block;
+}
+
 /* Category Pills */
 .category-pills {
     display: flex;
-    gap: 8px;  /* ลดจาก 10px */
+    gap: 8px;
     overflow-x: auto;
-    padding: 4px 0;  /* ลดจาก 5px */
+    padding: 4px 0;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
+.category-pills::-webkit-scrollbar {
+    display: none;
+}
+
 .category-pill {
-    padding: 6px 16px;  /* ลดจาก 8px 20px */
-    border-radius: 18px;  /* ลดจาก 20px */
+    padding: 6px 16px;
+    border-radius: 18px;
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    font-size: 13px;  /* ลดจาก 14px */
+    font-size: 13px;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -127,49 +134,270 @@
 .category-pill.active {
     background: white;
     color: #00bcd4;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);  /* ลดเงา */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* Search Results - ปรับให้สอดคล้อง */
+
 .search-results {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
     background: white;
-    border-radius: 14px;  /* ลดจาก 16px */
-    margin-top: 8px;  /* ลดจาก 10px */
+    border-radius: 14px;
+    margin-top: 8px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    max-height: 350px;  /* ลดจาก 400px */
+    max-height: 350px;
     overflow-y: auto;
     z-index: 1000;
     display: none;
 }
 
+.search-results.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .search-result-item {
-    border-radius: 8px;  /* ลดจาก 10px */
+    border-radius: 8px;
     transition: all 0.2s ease;
     cursor: pointer;
     border: 1px solid transparent;
-    padding: 10px 12px;  /* ปรับ padding */
+    padding: 10px 12px;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
 }
 
 .search-result-image {
-    width: 50px;  /* ลดจาก 60px */
-    height: 50px;  /* ลดจาก 60px */
+    width: 50px;
+    height: 50px;
     object-fit: cover;
-    border-radius: 6px;  /* ลดจาก 8px */
+    border-radius: 6px;
 }
 
-/* Responsive adjustments */
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: bold;
+    color: #856404;
+}
+
+
+.menu-grid {
+    transition: opacity 0.3s ease;
+}
+
+.menu-grid.searching {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.title-food {
+    font-size: 30px;
+    font-weight: bold;
+    color: #000000;
+}
+
+.card-food {
+    background-color: var(--bg-card-food);
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    padding: 4px;
+}
+
+.card-title {
+    font-size: 15px;
+}
+
+/* Product Card */
+.product-card {
+    cursor: pointer;
+    border-radius: 10px;
+    transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Cart Amount Badge */
+.cart-amount-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 20px;
+    transform: translateX(50%);
+    border: 1px solid #30acff;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 2px 10px;
+    font-size: 13px;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.amount-custom {
+    border: 1px solid #30acff;
+    border-radius: 50%;
+    padding: 0px 8px;
+    color: #30acff;
+}
+
+
+.btn-gray-left {
+    background-color: #d3d3d3;
+    color: #333;
+    border: none;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding: 0px 14px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-gray-right {
+    background-color: #d3d3d3;
+    color: #333;
+    border: none;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 0px 14px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-gray-left:hover,
+.btn-gray-right:hover {
+    background-color: #c0c0c0;
+    transform: scale(1.05);
+}
+
+.btn-plus {
+    background-color: #82f3fd;
+    color: #ffff;
+    border-radius: 50%;
+    border: 0px solid #333;
+    font-size: 20px;
+    padding: 0px 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.btn-minus {
+    background-color: #b2f9ff;
+    color: #ffff;
+    border-radius: 50%;
+    border: 0px solid #333;
+    font-size: 20px;
+    padding: 0px 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.btn-plus:hover,
+.btn-minus:hover {
+    transform: scale(1.1);
+}
+
+
+.custom-height-offcanvas {
+    height: 95vh !important;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.custom-height-offcanvas2 {
+    height: 70vh !important;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.img-cover-wrapper {
+    position: relative;
+}
+
+.btn-close-top-left {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: white;
+    border-radius: 50%;
+    padding: 0.5rem 0.5rem;
+    z-index: 10;
+}
+
+
+.count {
+    background-color: #e0e0e0;
+    padding: 1.5px 0px;
+}
+
+.text-alret-blue {
+    background-color: #d9fcff;
+}
+
+.text-alret-gray {
+    background-color: #f3f3f3;
+}
+
+.note-count {
+    font-weight: bold;
+    font-size: 1.25rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Item Card in Offcanvas */
+.item-card {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.item-card:hover {
+    background-color: #f8f9fa;
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
 @media (max-width: 768px) {
+    /* Header adjustments */
     .header-section {
-        padding: 12px 12px 16px 12px;  /* ลด padding บนมือถือ */
+        padding: 12px 12px 16px 12px;
         margin: -12px -12px 12px -12px;
     }
     
     .page-title {
-        font-size: 20px;  /* ลดจาก 24px */
+        font-size: 20px;
     }
     
     .page-title i {
@@ -177,13 +405,57 @@
     }
     
     .search-input {
-        font-size: 16px;  /* ยังคงไว้ที่ 16px เพื่อป้องกัน zoom บนมือถือ */
+        font-size: 16px; /* ป้องกัน zoom บนมือถือ */
         padding: 9px 40px 9px 16px;
     }
     
     .category-pill {
         font-size: 12px;
         padding: 5px 14px;
+    }
+    
+    /* Search results adjustments */
+    .search-result-image {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .search-results {
+        max-height: 300px;
+    }
+    
+    /* Menu grid adjustments */
+    .card-title {
+        font-size: 14px;
+    }
+    
+    .title-food {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small devices */
+    .header-section {
+        padding: 10px 10px 14px 10px;
+        border-radius: 0 0 20px 20px;
+    }
+    
+    .page-title {
+        font-size: 18px;
+    }
+    
+    .search-input {
+        padding: 8px 35px 8px 14px;
+    }
+    
+    .category-pills {
+        gap: 6px;
+    }
+    
+    .category-pill {
+        font-size: 11px;
+        padding: 4px 12px;
     }
 }
     </style>
